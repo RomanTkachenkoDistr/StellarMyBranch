@@ -54,9 +54,9 @@ getTestConfig(int instanceNumber, Config::TestDbMode mode)
     {
         // by default, tests should be run with in memory SQLITE as it's faster
         // you can change this by enabling the appropriate line below
-        mode = Config::TESTDB_IN_MEMORY_SQLITE;
+       // mode = Config::TESTDB_IN_MEMORY_SQLITE;
         // mode = Config::TESTDB_ON_DISK_SQLITE;
-        // mode = Config::TESTDB_POSTGRESQL;
+         mode = Config::TESTDB_POSTGRESQL;
     }
     auto& cfgs = gTestCfg[mode];
     if (cfgs.size() <= static_cast<size_t>(instanceNumber))
@@ -129,7 +129,7 @@ getTestConfig(int instanceNumber, Config::TestDbMode mode)
             break;
 #ifdef USE_POSTGRES
         case Config::TESTDB_POSTGRESQL:
-            dbname << "postgresql://dbname=test" << instanceNumber;
+            dbname << "postgresql://dbname=test" << instanceNumber << " user=postgres host=localhost";
             break;
 #endif
         default:

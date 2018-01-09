@@ -65,7 +65,8 @@ enum LedgerEntryType
     ACCOUNT = 0,
     TRUSTLINE = 1,
     OFFER = 2,
-    DATA = 3
+    DATA = 3,
+	DIRECT_DEBIT = 4
 };
 
 struct Signer
@@ -138,6 +139,7 @@ enum TrustLineFlags
     // issuer has authorized account to perform transactions with its credit
     AUTHORIZED_FLAG = 1
 };
+
 
 
 // mask for all trustline flags
@@ -222,6 +224,22 @@ struct DataEntry
 };
 
 
+struct DirectDebitEntry
+{
+   
+	AccountID debitor;
+    AccountID creditor;
+    Asset asset;         
+    
+
+    // reserved for future use
+    union switch (int v)
+    {
+    case 0:
+        void;
+    }
+    ext;
+};
 struct LedgerEntry
 {
     uint32 lastModifiedLedgerSeq; // ledger the LedgerEntry was last changed
@@ -236,6 +254,8 @@ struct LedgerEntry
         OfferEntry offer;
     case DATA:
         DataEntry data;
+	case DIRECT_DEBIT:
+	    DirectDebitEntry directDebit;
     }
     data;
 

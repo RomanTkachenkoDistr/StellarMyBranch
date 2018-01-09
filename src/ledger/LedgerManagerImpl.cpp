@@ -6,6 +6,7 @@
 #include "DataFrame.h"
 #include "OfferFrame.h"
 #include "TrustFrame.h"
+#include "DirectDebitFrame.h"
 #include "bucket/BucketManager.h"
 #include "crypto/Hex.h"
 #include "crypto/KeyUtils.h"
@@ -813,6 +814,8 @@ LedgerManagerImpl::checkDbState()
     offers = OfferFrame::loadAllOffers(getDatabase());
     std::unordered_map<AccountID, std::vector<DataFrame::pointer>> datas;
     datas = DataFrame::loadAllData(getDatabase());
+	std::unordered_map<AccountID, std::vector<DirectDebitFrame::pointer>> debits;
+	debits = DirectDebitFrame::loadAllDebits(getDatabase());
 
     for (auto& i : aData)
     {
@@ -836,6 +839,11 @@ LedgerManagerImpl::checkDbState()
         {
             actualSubEntries += itDatas->second.size();
         }
+		auto itDebits = debits.find(i.first);
+		if (itDebits != debits.end())
+		{
+			actualSubEntries += itDebits->second.size();
+		}
 
         if (a.numSubEntries != (uint32)actualSubEntries)
         {
@@ -864,6 +872,15 @@ LedgerManagerImpl::checkDbState()
                             KeyUtils::toStrKey(of.first)));
         }
     }
+	for (auto& deb : debits)
+	{
+		if (aData.find(deb.first) == aData.end())
+		{
+			throw std::runtime_error(
+				fmt::format("Unexpected debit found for account {}",
+					KeyUtils::toStrKey(deb.first)));
+		}
+	}
 }
 
 void

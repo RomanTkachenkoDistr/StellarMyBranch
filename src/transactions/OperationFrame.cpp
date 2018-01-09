@@ -7,6 +7,8 @@
 #include "database/Database.h"
 #include "ledger/LedgerDelta.h"
 #include "main/Application.h"
+#include "ManageDirectDebitOpFrame.h"
+#include "DirectDebitPaymentOpFrame.h"
 #include "transactions/AllowTrustOpFrame.h"
 #include "transactions/ChangeTrustOpFrame.h"
 #include "transactions/CreateAccountOpFrame.h"
@@ -79,7 +81,10 @@ OperationFrame::makeHelper(Operation const& op, OperationResult& res,
         return std::make_shared<InflationOpFrame>(op, res, tx);
     case MANAGE_DATA:
         return std::make_shared<ManageDataOpFrame>(op, res, tx);
-
+	case MANAGE_DIRECT_DEBIT:
+		return std::make_shared<ManageDirectDebitOpFrame>(op, res, tx);
+	case DIRECT_DEBIT_PAYMENT:
+		return std::make_shared<DirectDebitPaymentOpFrame>(op, res, tx);
     default:
         ostringstream err;
         err << "Unknown Tx type: " << op.body.type();

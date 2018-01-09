@@ -14,6 +14,7 @@
 #include "test/TestExceptions.h"
 #include "test/TestUtils.h"
 #include "test/test.h"
+#include "transactions/ManageDirectDebitOpFrame.h"
 #include "transactions/AllowTrustOpFrame.h"
 #include "transactions/ChangeTrustOpFrame.h"
 #include "transactions/CreateAccountOpFrame.h"
@@ -223,6 +224,18 @@ loadTrustLine(SecretKey const& k, Asset const& asset, Application& app,
     }
     return res;
 }
+DirectDebitFrame::pointer
+loadDirectDebit(PublicKey const& debitor, Asset const& asset, PublicKey const& creditor,
+	Application& app, bool mustExist)
+{
+	DirectDebitFrame::pointer res =
+		DirectDebitFrame::loadDirectDebit(debitor, asset, creditor, app.getDatabase());
+	if (mustExist)
+	{
+		REQUIRE(res);
+	}
+	return res;
+}
 
 xdr::xvector<Signer, 20>
 getAccountSigners(PublicKey const& k, Application& app)
@@ -274,7 +287,18 @@ allowTrust(PublicKey const& trustor, Asset const& asset, bool authorize)
 
     return op;
 }
+Operation 
+manageDirectDebit(PublicKey const& debitor, Asset const& asset,  bool cancelDebit)
+{
+	Operation op;
 
+	op.body.type(MANAGE_DIRECT_DEBIT);
+	op.body.manageDirectDebitOp().debitor = debitor;
+	op.body.manageDirectDebitOp().asset = asset;
+	op.body.manageDirectDebitOp().cancelDebit;
+	
+	return op;
+}
 Operation
 createAccount(PublicKey const& dest, int64_t amount)
 {

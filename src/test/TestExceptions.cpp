@@ -131,7 +131,28 @@ throwIf(ManageOfferResult const& result)
         throw ex_UNKNOWN{};
     }
 }
-
+void 
+throwIf(ManageDirectDebitResult const& result)
+{
+	switch (result.code())
+	{
+	case MANAGE_DIRECT_DEBIT_MALFORMED:
+			throw ex_MANAGE_DIRECT_DEBIT_MALFORMED{};
+	case MANAGE_DIRECT_DEBIT_EXIST:
+		throw ex_MANAGE_DIRECT_DEBIT_EXIST{};
+	case MANAGE_DIRECT_DEBIT_NOT_EXIST:
+		throw ex_MANAGE_DIRECT_DEBIT_NOT_EXIST{};
+	case MANAGE_DIRECT_DEBIT_NO_TRUST:
+		throw ex_MANAGE_DIRECT_DEBIT_NO_TRUST{};
+	case MANAGE_DIRECT_DEBIT_SELF_NOT_ALLOWED:
+		throw ex_MANAGE_DIRECT_DEBIT_SELF_NOT_ALLOWED{};
+	case MANAGE_DIRECT_DEBIT_SUCCESS:
+		break;
+	default:
+		throw ex_UNKNOWN{};
+		
+	}
+}
 void
 throwIf(SetOptionsResult const& result)
 {
@@ -314,6 +335,9 @@ throwIf(TransactionResult const& result)
     case MANAGE_DATA:
         throwIf(opResult.tr().manageDataResult());
         break;
+	case MANAGE_DIRECT_DEBIT:
+		throwIf(opResult.tr().manageDirectDebitResult());
+		break;
     }
 }
 }

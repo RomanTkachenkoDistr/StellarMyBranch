@@ -9,6 +9,7 @@
 #include "main/Application.h"
 #include "test/TestExceptions.h"
 #include "test/TxTests.h"
+#include "util/Logging.h"
 
 namespace stellar
 {
@@ -72,8 +73,9 @@ TestAccount::create(SecretKey const& secretKey, uint64_t initialBalance)
         applyTx(tx({createAccount(secretKey.getPublicKey(), initialBalance)}),
                 mApp);
     }
-    catch (...)
+    catch (std::exception ex)
     {
+		LOG(INFO) << ex.what();
         auto toCreateAfter = loadAccount(secretKey.getPublicKey(), mApp, false);
         // check that the target account didn't change
         REQUIRE(!!toCreate == !!toCreateAfter);
@@ -132,7 +134,11 @@ TestAccount::denyTrust(Asset const& asset, PublicKey const& trustor)
 {
     applyTx(tx({txtest::allowTrust(trustor, asset, false)}), mApp);
 }
-
+void 
+TestAccount::manageDirectDebit(Asset const& asset, PublicKey const& debitor, bool cancelDebit) 
+{
+	applyTx(tx({txtest::manageDirectDebit(debitor, asset, cancelDebit)}), mApp);
+}
 TrustLineEntry
 TestAccount::loadTrustLine(Asset const& asset) const
 {

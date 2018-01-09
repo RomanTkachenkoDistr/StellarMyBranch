@@ -11,6 +11,7 @@
 #include "ledger/DataFrame.h"
 #include "ledger/OfferFrame.h"
 #include "ledger/TrustFrame.h"
+#include "ledger/DirectDebitFrame.h"
 #include "lib/util/format.h"
 #include "main/Application.h"
 #include "xdrpp/printer.h"
@@ -45,7 +46,7 @@ BucketListIsConsistentWithDatabase::checkOnBucketApply(
 {
     BucketEntryIdCmp cmp;
 
-    uint64_t nAccounts = 0, nTrustLines = 0, nOffers = 0, nData = 0;
+    uint64_t nAccounts = 0, nTrustLines = 0, nOffers = 0, nData = 0, nDebits = 0;
     bool hasPreviousEntry = false;
     BucketEntry previousEntry;
     for (Bucket::InputIterator iter(bucket); iter; ++iter)
@@ -96,6 +97,9 @@ BucketListIsConsistentWithDatabase::checkOnBucketApply(
             case DATA:
                 ++nData;
                 break;
+			case DIRECT_DEBIT:
+				++nDebits;
+				break;
             default:
                 abort();
             }
@@ -144,6 +148,13 @@ BucketListIsConsistentWithDatabase::checkOnBucketApply(
     {
         return fmt::format(countFormat, "Data", nData, nDataInDb);
     }
+	uint64_t nDebitsInDb =
+		DirectDebitFrame::countObjects(sess, { oldestLedger, newestLedger });
+	if (nDebitsInDb != nDebits)
+	{
+		return fmt::format(countFormat, "DirectDebit", nDebits,
+			nDebitsInDb);
+	}
     return {};
 }
 }

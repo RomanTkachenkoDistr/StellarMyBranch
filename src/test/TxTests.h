@@ -12,6 +12,7 @@
 #include "overlay/StellarXDR.h"
 #include "test/TestPrinter.h"
 #include "util/optional.h"
+#include "ledger/DirectDebitFrame.h"
 
 namespace stellar
 {
@@ -58,6 +59,9 @@ OfferFrame::pointer loadOffer(PublicKey const& k, uint64 offerID,
 TrustFrame::pointer loadTrustLine(SecretKey const& k, Asset const& asset,
                                   Application& app, bool mustExist = true);
 
+DirectDebitFrame::pointer loadDirectDebit(PublicKey const& debitor, Asset const& asset,
+	                              PublicKey const& creditor, Application& app, bool mustExist);
+
 xdr::xvector<Signer, 20> getAccountSigners(PublicKey const& k,
                                            Application& app);
 
@@ -70,6 +74,7 @@ Operation changeTrust(Asset const& asset, int64_t limit);
 
 Operation allowTrust(PublicKey const& trustor, Asset const& asset,
                      bool authorize);
+Operation manageDirectDebit(PublicKey const& debitor, Asset const& asset, bool cancelDebit);
 
 Operation inflation();
 

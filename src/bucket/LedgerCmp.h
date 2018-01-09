@@ -71,6 +71,18 @@ struct LedgerEntryIdCmp
                 return false;
             return aof.offerID < bof.offerID;
         }
+		case DIRECT_DEBIT:
+		{
+			auto const& adeb = a.directDebit();
+			auto const& bdeb = b.directDebit();
+			if (adeb.creditor < bdeb.creditor && adeb.debitor < bdeb.debitor)
+				return true;
+			if (bdeb.creditor < adeb.creditor && bdeb.debitor < adeb.debitor)
+				return false;
+			{
+				return adeb.asset < bdeb.asset;
+			}
+		}
         case DATA:
         {
             auto const& ad = a.data();

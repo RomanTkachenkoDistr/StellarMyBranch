@@ -17,6 +17,7 @@
 #include "ledger/LedgerManager.h"
 #include "ledger/OfferFrame.h"
 #include "ledger/TrustFrame.h"
+#include "ledger/DirectDebitFrame.h"
 #include "main/Application.h"
 #include "util/format.h"
 #include "util/make_unique.h"
@@ -113,6 +114,9 @@ ApplyBucketsWork::onStart()
                                                         oldestLedger);
         DataFrame::deleteDataModifiedOnOrAfterLedger(mApp.getDatabase(),
                                                      oldestLedger);
+		DirectDebitFrame::deleteTrustLinesModifiedOnOrAfterLedger(mApp.getDatabase(),
+			                                     oldestLedger);
+		
     }
 
     if (mApplying || applySnap)

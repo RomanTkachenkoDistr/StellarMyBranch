@@ -13,6 +13,7 @@
 #include "ledger/TrustFrame.h"
 #include "xdrpp/marshal.h"
 #include "xdrpp/printer.h"
+#include "ledger\DirectDebitFrame.h"
 
 namespace stellar
 {
@@ -23,21 +24,25 @@ EntryFrame::FromXDR(LedgerEntry const& from)
 {
     EntryFrame::pointer res;
 
-    switch (from.data.type())
-    {
-    case ACCOUNT:
-        res = std::make_shared<AccountFrame>(from);
-        break;
-    case TRUSTLINE:
-        res = std::make_shared<TrustFrame>(from);
-        break;
-    case OFFER:
-        res = std::make_shared<OfferFrame>(from);
-        break;
-    case DATA:
-        res = std::make_shared<DataFrame>(from);
-        break;
-    }
+	switch (from.data.type())
+	{
+	case ACCOUNT:
+		res = std::make_shared<AccountFrame>(from);
+		break;
+	case TRUSTLINE:
+		res = std::make_shared<TrustFrame>(from);
+		break;
+	case OFFER:
+		res = std::make_shared<OfferFrame>(from);
+		break;
+	case DATA:
+		res = std::make_shared<DataFrame>(from);
+		break;
+
+	case DIRECT_DEBIT:
+		res = std::make_shared<DirectDebitFrame>(from);
+		break;
+	}
     return res;
 }
 
@@ -73,6 +78,14 @@ EntryFrame::storeLoad(LedgerKey const& key, Database& db)
             DataFrame::loadData(data.accountID, data.dataName, db));
     }
     break;
+	case DIRECT_DEBIT:
+	{
+		auto const& debit = key.directDebit();
+		res = std::static_pointer_cast<EntryFrame>(
+			DirectDebitFrame::loadDirectDebit(debit.debitor, debit.asset,debit.creditor, db));
+
+	}
+	break;
     }
     return res;
 }
@@ -221,6 +234,8 @@ EntryFrame::exists(Database& db, LedgerKey const& key)
         return OfferFrame::exists(db, key);
     case DATA:
         return DataFrame::exists(db, key);
+	case DIRECT_DEBIT:
+		return DirectDebitFrame::exists(db, key);
     default:
         abort();
     }
@@ -243,6 +258,9 @@ EntryFrame::storeDelete(LedgerDelta& delta, Database& db, LedgerKey const& key)
     case DATA:
         DataFrame::storeDelete(delta, db, key);
         break;
+	case DIRECT_DEBIT:
+		DirectDebitFrame::storeDelete(delta, db, key);
+		break;
     }
 }
 
@@ -276,6 +294,14 @@ LedgerEntryKey(LedgerEntry const& e)
         k.data().accountID = d.data().accountID;
         k.data().dataName = d.data().dataName;
         break;
+	case DIRECT_DEBIT:
+		k.type(DIRECT_DEBIT);
+		k.directDebit().asset = d.directDebit().asset;
+		k.directDebit().creditor = d.directDebit().creditor;
+		k.directDebit().debitor = d.directDebit().debitor;
+		break;
+	
+
     }
     return k;
 }

@@ -36,6 +36,7 @@ numberOfSubentries(AccountID const& accountID, Database& db)
             + (SELECT COUNT(*) FROM offers WHERE sellerid = :id)
             + (SELECT COUNT(*) FROM accountdata WHERE accountid = :id)
             + (SELECT COUNT(*) FROM signers WHERE accountid = :id)
+            + (SELECT COUNT(*) FROM debits WHERE creditor =:id)
         FROM accounts
         WHERE accountid = :id
     )"};

@@ -36,6 +36,8 @@ getAccount(LedgerEntry const& entry)
         return d.offer().sellerID;
     case DATA:
         return d.data().accountID;
+	case DIRECT_DEBIT:
+		return d.directDebit().creditor;
     default:
         abort();
     }
@@ -54,6 +56,8 @@ getAccount(LedgerKey const& key)
         return key.offer().sellerID;
     case DATA:
         return key.data().accountID;
+	case DIRECT_DEBIT:
+		return key.directDebit().creditor;
     default:
         abort();
     }

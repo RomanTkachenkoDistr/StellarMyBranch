@@ -129,6 +129,14 @@ case DATA:
         AccountID accountID;
         string64 dataName;
     } data;
+case DIRECT_DEBIT:
+    struct
+	{
+	    AccountID debitor;
+		AccountID creditor;
+		Asset asset;
+	
+	}directDebit;
 };
 
 enum BucketEntryType

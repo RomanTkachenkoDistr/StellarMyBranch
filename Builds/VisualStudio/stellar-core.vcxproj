@@ -320,6 +320,7 @@ exit /b 0
     <ClCompile Include="..\..\src\invariant\InvariantTests.cpp" />
     <ClCompile Include="..\..\src\invariant\TotalCoinsEqualsBalancesPlusFeePool.cpp" />
     <ClCompile Include="..\..\src\ledger\AccountFrame.cpp" />
+    <ClCompile Include="..\..\src\ledger\DirectDebitFrame.cpp" />
     <ClCompile Include="..\..\src\ledger\CheckpointRange.cpp" />
     <ClCompile Include="..\..\src\ledger\DataFrame.cpp" />
     <ClCompile Include="..\..\src\ledger\LedgerDelta.cpp" />
@@ -435,6 +436,8 @@ exit /b 0
     <ClCompile Include="..\..\src\test\TestPrinter.cpp" />
     <ClCompile Include="..\..\src\test\TestUtils.cpp" />
     <ClCompile Include="..\..\src\test\TxTests.cpp" />
+    <ClCompile Include="..\..\src\transactions\DirectDebitPaymentOpFrame.cpp" />
+    <ClCompile Include="..\..\src\transactions\ManageDirectDebitOpFrame.cpp" />
     <ClCompile Include="..\..\src\transactions\AllowTrustOpFrame.cpp" />
     <ClCompile Include="..\..\src\transactions\AllowTrustTests.cpp" />
     <ClCompile Include="..\..\src\transactions\ChangeTrustTests.cpp" />
@@ -460,6 +463,7 @@ exit /b 0
     <ClCompile Include="..\..\src\transactions\SignatureChecker.cpp" />
     <ClCompile Include="..\..\src\transactions\SignatureUtils.cpp" />
     <ClCompile Include="..\..\src\transactions\SignatureUtilsTest.cpp" />
+    <ClCompile Include="..\..\src\transactions\tests\ManageDirectDebitTests.cpp" />
     <ClCompile Include="..\..\src\transactions\TxEnvelopeTests.cpp" />
     <ClCompile Include="..\..\lib\util\crc16.cpp" />
     <ClCompile Include="..\..\src\transactions\TxResultsTests.cpp" />
@@ -574,6 +578,7 @@ exit /b 0
     <ClInclude Include="..\..\src\invariant\InvariantManager.h" />
     <ClInclude Include="..\..\src\invariant\InvariantManagerImpl.h" />
     <ClInclude Include="..\..\src\invariant\TotalCoinsEqualsBalancesPlusFeePool.h" />
+    <ClInclude Include="..\..\src\ledger\DirectDebitFrame.h" />
     <ClInclude Include="..\..\src\ledger\CheckpointRange.h" />
     <ClInclude Include="..\..\src\ledger\DataFrame.h" />
     <ClInclude Include="..\..\src\ledger\LedgerRange.h" />
@@ -652,6 +657,8 @@ exit /b 0
     <ClInclude Include="..\..\src\test\TestPrinter.h" />
     <ClInclude Include="..\..\src\test\TestUtils.h" />
     <ClInclude Include="..\..\src\test\TxTests.h" />
+    <ClInclude Include="..\..\src\transactions\DirectDebitPaymentOpFrame.h" />
+    <ClInclude Include="..\..\src\transactions\ManageDirectDebitOpFrame.h" />
     <ClInclude Include="..\..\src\transactions\AllowTrustOpFrame.h" />
     <ClInclude Include="..\..\src\transactions\CreateAccountOpFrame.h" />
     <ClInclude Include="..\..\src\transactions\CreatePassiveOfferOpFrame.h" />
