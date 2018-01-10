@@ -144,7 +144,7 @@ namespace stellar
 
 		auto timer = db.getDeleteTimer("debit");
 		db.getSession() << "DELETE FROM debits "
-			"WHERE accountid=:v1 AND issuer=:v2 AND assetcode=:v3 AND assetissuer",
+			"WHERE debitor=:v1 AND creditor=:v2 AND assetcode=:v3 AND assetissuer=:v4",
 			use(debitor), use(creditor), use(assetCode), use(assetIssuer);
 
 		delta.deleteEntry(key);
@@ -292,6 +292,7 @@ namespace stellar
 		while (st.got_data())
 		{
 			le.lastModifiedLedgerSeq = lastModified;
+			debit.creditor = KeyUtils::fromStrKey<PublicKey>(creditorStrKey);
 			debit.debitor = KeyUtils::fromStrKey<PublicKey>(debitorStrKey);
 			debit.asset.type((AssetType)assetType);
 			if (assetType == ASSET_TYPE_CREDIT_ALPHANUM4)
@@ -347,6 +348,17 @@ namespace stellar
 			st.define_and_bind();
 			st.execute(true);
 		}
+	}
+	DirectDebitFrame&
+		DirectDebitFrame::operator=(DirectDebitFrame const& other)
+	{
+		if (&other != this)
+		{
+			mDirectDebit = other.mDirectDebit;
+			mKey = other.mKey;
+			mKeyCalculated = other.mKeyCalculated;
+		}
+		return *this;
 	}
 	std::unordered_map<AccountID, std::vector<DirectDebitFrame::pointer>>
 		DirectDebitFrame::loadAllDebits(Database& db)

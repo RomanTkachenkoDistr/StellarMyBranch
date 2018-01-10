@@ -38,7 +38,6 @@ EntryFrame::FromXDR(LedgerEntry const& from)
 	case DATA:
 		res = std::make_shared<DataFrame>(from);
 		break;
-
 	case DIRECT_DEBIT:
 		res = std::make_shared<DirectDebitFrame>(from);
 		break;

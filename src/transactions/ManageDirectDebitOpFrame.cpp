@@ -44,8 +44,10 @@ namespace stellar
 				.NewMeter({ "op-manage-direct-debit", "success", "apply" }, "operation")
 				.Mark();
 			innerResult().code(MANAGE_DIRECT_DEBIT_SUCCESS);
-
+			
 			directDebit->storeDelete(delta, db);
+			mSourceAccount->addNumEntries(-1, ledgerManager);
+			mSourceAccount->storeChange(delta, db);
 
 			return true;
 		}
@@ -90,6 +92,16 @@ namespace stellar
 			innerResult().code(MANAGE_DIRECT_DEBIT_EXIST);
 			return false;
 		}
+		if (!mSourceAccount->addNumEntries(1, ledgerManager))
+		{
+			app.getMetrics()
+				.NewMeter({ "op-manage-direct-debit", "failure", "low-reserve" },
+					"operation")
+				.Mark();
+			innerResult().code(MANAGE_DIRECT_DEBIT_LOW_RESERVE);
+			return false;
+		}
+		
 			app.getMetrics()
 				.NewMeter({ "op-manage-direct-debit", "success", "apply" }, "operation")
 				.Mark();
@@ -99,7 +111,9 @@ namespace stellar
 			le.data.type(DIRECT_DEBIT);
 			le.data.directDebit() = buildDirectDebit(getSourceID(), mManageDirectDebit);
 			debit = std::make_shared<DirectDebitFrame>(le);
+			mSourceAccount->storeChange(delta, db);
 			debit->storeAdd(delta, db);
+			
 			return true;
 		
 	}

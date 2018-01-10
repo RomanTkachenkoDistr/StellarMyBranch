@@ -13,6 +13,7 @@
 #include "util/Logging.h"
 #include "util/make_unique.h"
 #include "util/Timer.h"
+#include "ledger/LedgerDelta.h"
 
 
 using namespace stellar;
@@ -26,22 +27,23 @@ TEST_CASE("manage_direct_debit", "[tx][manage_direct_debit]")
 	auto app = createTestApplication(clock, cfg);
 
 	app->start();
-	
-	auto const minBalance2 = app->getLedgerManager().getMinBalance(2);
 
+	auto const minBalance3 = app->getLedgerManager().getMinBalance(3);
+	auto const lowBalance = app->getLedgerManager().getMinBalance(1);
 	// set up world
 	auto root = TestAccount::createRoot(*app);
-	auto creditor = root.create("gw", minBalance2);
-	auto debitor = root.create("debitor", minBalance2);
-	
+	auto creditor = root.create("gw", minBalance3);
+	auto debitor = root.create("debitor", minBalance3);
+	auto account = root.create("acc", lowBalance);
 	Asset nativeAsset = makeNativeAsset();
 
 	Asset asset = makeAsset(debitor, "USD");
-
+	
 	SECTION("manage direct debit malformed") {
 		for_all_versions(*app, [&] {
 			Asset invalidAsset = makeInvalidAsset();
-			SecretKey invalidAccount = SecretKey::random();
+			SecretKey const& invalidAccount = SecretKey::random();
+
 			SECTION("manage direct debit invalid asset") {
 
 				REQUIRE_THROWS_AS(creditor.manageDirectDebit(invalidAsset, debitor, false),
@@ -60,10 +62,17 @@ TEST_CASE("manage_direct_debit", "[tx][manage_direct_debit]")
 			}
 		});
 	}
+	
 	SECTION("create direct debit self") {
 		for_all_versions(*app, [&] {
 			REQUIRE_THROWS_AS(creditor.manageDirectDebit(nativeAsset, creditor, false),
 				ex_MANAGE_DIRECT_DEBIT_SELF_NOT_ALLOWED);
+		});
+	}
+	SECTION("create direct debit low reserve") {
+		for_all_versions(*app, [&] {
+			REQUIRE_THROWS_AS(account.manageDirectDebit(nativeAsset, creditor, false),
+				ex_MANAGE_DIRECT_DEBIT_LOW_RESERVE);
 		});
 	}
 	SECTION("delete direct debit not exist") {
@@ -78,25 +87,55 @@ TEST_CASE("manage_direct_debit", "[tx][manage_direct_debit]")
 				ex_MANAGE_DIRECT_DEBIT_NO_TRUST);
 		});
 	}
-	creditor.changeTrust(asset, 100);
-	creditor.manageDirectDebit(asset, debitor, false);
-	SECTION("create direct debit succes") {
+	
+	SECTION("manage direct debit with native asset") {
 		for_all_versions(*app, [&] {
+			SECTION("create direct debit success") {
 
-			REQUIRE(loadDirectDebit(debitor, asset, creditor, *app, true));
+				creditor.manageDirectDebit(nativeAsset, debitor, false);
+				REQUIRE(loadDirectDebit(debitor, nativeAsset, creditor, *app, true));
+
+			}
+			SECTION("create direct debit exist") {
+
+				creditor.manageDirectDebit(nativeAsset, debitor, false);
+				REQUIRE_THROWS_AS(creditor.manageDirectDebit(nativeAsset, debitor, false),
+					ex_MANAGE_DIRECT_DEBIT_EXIST);
+			}
+			SECTION("delete direct debit succes") {
+
+				creditor.manageDirectDebit(nativeAsset, debitor, false);
+				creditor.manageDirectDebit(nativeAsset, debitor, true);
+
+				REQUIRE(!loadDirectDebit(debitor, nativeAsset, creditor, *app, false));
+
+			}
 		});
 	}
-	SECTION("create direct debit exist") {
+	
+	SECTION("manage direct debit with asset") {
+		creditor.changeTrust(asset, 100);
 		for_all_versions(*app, [&] {
+			SECTION("create direct debit success") {
 
-			REQUIRE_THROWS_AS(creditor.manageDirectDebit(asset, debitor, false),
-				ex_MANAGE_DIRECT_DEBIT_EXIST);
-		});
-	SECTION("delete direct debit succes") {
-			for_all_versions(*app, [&] {
+				creditor.manageDirectDebit(asset, debitor, false);
+				REQUIRE(loadDirectDebit(debitor, asset, creditor, *app, true));
+
+			}
+			SECTION("create direct debit exist") {
+
+				creditor.manageDirectDebit(asset, debitor, false);
+				REQUIRE_THROWS_AS(creditor.manageDirectDebit(asset, debitor, false),
+					ex_MANAGE_DIRECT_DEBIT_EXIST);
+			}
+			SECTION("delete direct debit succes") {
+
+				creditor.manageDirectDebit(asset, debitor, false);
 				creditor.manageDirectDebit(asset, debitor, true);
-				REQUIRE(!loadDirectDebit(debitor, asset, creditor, *app, true));
-			});
-		}
+
+				REQUIRE(!loadDirectDebit(debitor, asset, creditor, *app, false));
+
+			}
+		});
 	}
 }

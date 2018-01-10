@@ -61,6 +61,8 @@ namespace stellar
 
 		static void DirectDebitFrame::deleteDirectDebitsModifiedOnOrAfterLedger(Database& db,
 				uint32_t oldestLedger);
+
+		DirectDebitFrame & operator=(DirectDebitFrame const & other);
 		
 		static std::unordered_map<AccountID, std::vector<DirectDebitFrame::pointer>>
 			loadAllDebits(Database& db);
