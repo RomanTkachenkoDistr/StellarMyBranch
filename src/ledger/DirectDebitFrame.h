@@ -59,7 +59,7 @@ namespace stellar
 			Database& db, LedgerDelta* delta = nullptr);
 
 
-		static void DirectDebitFrame::deleteTrustLinesModifiedOnOrAfterLedger(Database& db,
+		static void DirectDebitFrame::deleteDirectDebitsModifiedOnOrAfterLedger(Database& db,
 				uint32_t oldestLedger);
 		
 		static std::unordered_map<AccountID, std::vector<DirectDebitFrame::pointer>>

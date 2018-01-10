@@ -172,17 +172,17 @@ namespace stellar
 		
 		auto prep = db.getPreparedStatement(
 			"INSERT INTO debits "
-			"(debitor,creditor,assettype,assetcode,assetissuer, "
+			"(debitor, creditor, assettype, assetcode, assetissuer, "
 			"lastmodified) "
 			"VALUES (:v1, :v2, :v3, :v4, :v5, :v6)");
 		auto& st = prep.statement();
-		
+		auto lastModified = getLastModified();
 		st.exchange(use(debitor));
 		st.exchange(use(creditor));
 		st.exchange(use(assetType));
 		st.exchange(use(assetCode));
 		st.exchange(use(assetIssuer));
-		st.exchange(use(getLastModified()));
+		st.exchange(use(lastModified));
 		st.define_and_bind();
 		{
 			auto timer = db.getInsertTimer("debit");
@@ -197,12 +197,10 @@ namespace stellar
 		delta.addEntry(*this);
 	}
 
+		
 	static const char* directDebitColumnSelector =
-		"SELECT "
-		"debitor,creditor,assettype,assetcode,assetissuer "
-		"FROM debits";
-
-	
+		"SELECT creditor, debitor, assetcode, assettype, assetissuer, lastmodified FROM debits";
+		
 
 	DirectDebitFrame::pointer
 		DirectDebitFrame::loadDirectDebit(AccountID const& debitor, Asset const& asset,AccountID const& creditor,
@@ -272,14 +270,15 @@ namespace stellar
 		DirectDebitFrame::loadDebits(StatementContext& prep,
 			std::function<void(LedgerEntry const&)> debitProcessor)
 	{
-		string debitorStrKey;
-		std::string creditorStrKey, assetCode,assetIssuer;
+		
+		std::string debitorStrKey, creditorStrKey, assetCode, assetIssuer;
 		unsigned int assetType;
 
 		LedgerEntry le;
 		le.data.type(DIRECT_DEBIT);
 
 		DirectDebitEntry& debit = le.data.directDebit();
+		int lastModified = 0;
 
 		auto& st = prep.statement();
 		st.exchange(into(creditorStrKey));
@@ -287,11 +286,12 @@ namespace stellar
 		st.exchange(into(assetCode));
 		st.exchange(into(assetType));
 		st.exchange(into(assetIssuer));
-		st.exchange(into(le.lastModifiedLedgerSeq));
+		st.exchange(into(lastModified));
 		st.define_and_bind();
 		st.execute(true);
 		while (st.got_data())
 		{
+			le.lastModifiedLedgerSeq = lastModified;
 			debit.debitor = KeyUtils::fromStrKey<PublicKey>(debitorStrKey);
 			debit.asset.type((AssetType)assetType);
 			if (assetType == ASSET_TYPE_CREDIT_ALPHANUM4)
@@ -330,7 +330,7 @@ namespace stellar
 		
 	}
 	void
-		DirectDebitFrame::deleteTrustLinesModifiedOnOrAfterLedger(Database& db,
+		DirectDebitFrame::deleteDirectDebitsModifiedOnOrAfterLedger(Database& db,
 			uint32_t oldestLedger)
 	{
 		db.getEntryCache().erase_if(
@@ -352,13 +352,13 @@ namespace stellar
 		DirectDebitFrame::loadAllDebits(Database& db)
 	{
 		std::unordered_map<AccountID, std::vector<DirectDebitFrame::pointer>> retDebits;
-		std::string sql = directDebitColumnSelector;
-		sql += " ORDER BY creditor";
-		auto prep = db.getPreparedStatement(sql);
+		auto query = std::string(directDebitColumnSelector);
+		query += " ORDER BY creditor";
+		auto prep = db.getPreparedStatement(query);
 
 		auto timer = db.getSelectTimer("debit");
 		loadDebits(prep, [&retDebits](LedgerEntry const& of) {
-			auto& thisUserDebits = retDebits[of.data.directDebit().debitor];
+			auto& thisUserDebits = retDebits[of.data.directDebit().creditor];
 			thisUserDebits.emplace_back(make_shared<DirectDebitFrame>(of));
 		});
 		return retDebits;

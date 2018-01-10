@@ -75,13 +75,11 @@ struct LedgerEntryIdCmp
 		{
 			auto const& adeb = a.directDebit();
 			auto const& bdeb = b.directDebit();
-			if (adeb.creditor < bdeb.creditor && adeb.debitor < bdeb.debitor)
+			if (adeb.creditor < bdeb.creditor)
 				return true;
-			if (bdeb.creditor < adeb.creditor && bdeb.debitor < adeb.debitor)
+			if (bdeb.creditor < adeb.creditor)
 				return false;
-			{
-				return adeb.asset < bdeb.asset;
-			}
+			return adeb.creditor < bdeb.creditor;
 		}
         case DATA:
         {

@@ -295,7 +295,7 @@ manageDirectDebit(PublicKey const& debitor, Asset const& asset,  bool cancelDebi
 	op.body.type(MANAGE_DIRECT_DEBIT);
 	op.body.manageDirectDebitOp().debitor = debitor;
 	op.body.manageDirectDebitOp().asset = asset;
-	op.body.manageDirectDebitOp().cancelDebit;
+	op.body.manageDirectDebitOp().cancelDebit = cancelDebit;
 	
 	return op;
 }

@@ -114,7 +114,7 @@ ApplyBucketsWork::onStart()
                                                         oldestLedger);
         DataFrame::deleteDataModifiedOnOrAfterLedger(mApp.getDatabase(),
                                                      oldestLedger);
-		DirectDebitFrame::deleteTrustLinesModifiedOnOrAfterLedger(mApp.getDatabase(),
+		DirectDebitFrame::deleteDirectDebitsModifiedOnOrAfterLedger(mApp.getDatabase(),
 			                                     oldestLedger);
 		
     }
