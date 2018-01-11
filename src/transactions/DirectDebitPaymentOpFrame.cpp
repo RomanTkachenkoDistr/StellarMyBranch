@@ -68,7 +68,7 @@ namespace stellar
 		opRes.code(opINNER);
 		opRes.tr().type(PAYMENT);
 		PaymentOpFrame paymentOp(op, opRes, mParentTx);
-		
+		paymentOp.setSourceAccountPtr(account);
 		if (!paymentOp.doCheckValid(app) ||
 			!paymentOp.doApply(app, delta, ledgerManager))
 		{

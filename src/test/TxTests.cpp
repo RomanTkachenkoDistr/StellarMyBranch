@@ -300,6 +300,21 @@ manageDirectDebit(PublicKey const& debitor, Asset const& asset,  bool cancelDebi
 	return op;
 }
 Operation
+directDebitPayment(PublicKey const& creditor, PublicKey const& dest, Asset asset, int64_t amount)
+{
+	PaymentOp payment;
+	payment.amount = amount;
+	payment.asset = asset;
+	payment.destination = dest;
+
+	Operation op;
+	op.body.type(DIRECT_DEBIT_PAYMENT);
+	op.body.directDebitPaymentOp().creditor = creditor;
+	op.body.directDebitPaymentOp().payment = payment;
+	return op;
+
+}
+Operation
 createAccount(PublicKey const& dest, int64_t amount)
 {
     Operation op;

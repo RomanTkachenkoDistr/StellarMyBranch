@@ -139,6 +139,10 @@ TestAccount::manageDirectDebit(Asset const& asset, PublicKey const& debitor, boo
 {
 	applyTx(tx({txtest::manageDirectDebit(debitor, asset, cancelDebit)}), mApp);
 }
+void
+TestAccount::directDebitPayment(PublicKey const& creditor,PublicKey const& dest, Asset asset, int64_t amount) {
+	applyTx(tx({txtest::directDebitPayment(creditor,dest,asset,amount)}), mApp);
+}
 TrustLineEntry
 TestAccount::loadTrustLine(Asset const& asset) const
 {

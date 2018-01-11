@@ -155,6 +155,22 @@ throwIf(ManageDirectDebitResult const& result)
 		
 	}
 }
+void 
+throwIf(DirectDebitPaymentResult const& result) {
+
+	switch (result.code())
+	{
+	case DIRECT_DEBIT_PAYMENT_MALFORMED:
+		throw ex_DIRECT_DEBIT_PAYMENT_MALFORMED{};
+	case DIRECT_DEBIT_PAYMENT_NOT_ALLOWED:
+		throw ex_DIRECT_DEBIT_PAYMNET_NOT_ALLOWED{};
+	case DIRECT_DEBIT_PAYMENT_SUCCESS:
+		break;
+	default:
+		throw ex_UNKNOWN{};
+
+	}
+}
 void
 throwIf(SetOptionsResult const& result)
 {
@@ -339,6 +355,9 @@ throwIf(TransactionResult const& result)
         break;
 	case MANAGE_DIRECT_DEBIT:
 		throwIf(opResult.tr().manageDirectDebitResult());
+		break;
+	case DIRECT_DEBIT_PAYMENT:
+		throwIf(opResult.tr().directDebitPaymentResult());
 		break;
     }
 }

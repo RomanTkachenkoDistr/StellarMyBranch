@@ -463,6 +463,7 @@ exit /b 0
     <ClCompile Include="..\..\src\transactions\SignatureChecker.cpp" />
     <ClCompile Include="..\..\src\transactions\SignatureUtils.cpp" />
     <ClCompile Include="..\..\src\transactions\SignatureUtilsTest.cpp" />
+    <ClCompile Include="..\..\src\transactions\tests\DirectDebitPaymentTest.cpp" />
     <ClCompile Include="..\..\src\transactions\tests\ManageDirectDebitTests.cpp" />
     <ClCompile Include="..\..\src\transactions\TxEnvelopeTests.cpp" />
     <ClCompile Include="..\..\lib\util\crc16.cpp" />

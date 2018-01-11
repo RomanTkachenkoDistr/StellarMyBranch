@@ -76,6 +76,8 @@ Operation allowTrust(PublicKey const& trustor, Asset const& asset,
                      bool authorize);
 Operation manageDirectDebit(PublicKey const& debitor, Asset const& asset, bool cancelDebit);
 
+Operation directDebitPayment(PublicKey const& creditor, PublicKey const& dest, Asset asset, int64_t amount);
+
 Operation inflation();
 
 Operation accountMerge(PublicKey const& dest);

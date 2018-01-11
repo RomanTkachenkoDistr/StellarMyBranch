@@ -46,6 +46,7 @@ class TestAccount
     void denyTrust(Asset const& asset, PublicKey const& trustor);
 	
 void manageDirectDebit(Asset const& asset,PublicKey const& debitor, bool cancelDebit);
+void directDebitPayment(PublicKey const& creditor, PublicKey const& dest, Asset asset, int64_t amount);
     TrustLineEntry loadTrustLine(Asset const& asset) const;
     bool hasTrustLine(Asset const& asset) const;
 
