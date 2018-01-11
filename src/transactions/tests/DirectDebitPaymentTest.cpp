@@ -66,7 +66,7 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 			});
 		}
 	}
-	SECTION("debit payment success")
+	SECTION("debit payment native asset success")
 	{
 		for_all_versions(*app, [&] {
 		creditor.manageDirectDebit(nativeAsset, debitor, false);
@@ -79,6 +79,25 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 			REQUIRE(debitorAcc->getBalance() + 100 == minBalance3);
 			REQUIRE(creditorAcc->getBalance() + 100 + amount == minBalance3);
 			REQUIRE((destAcc->getBalance() - amount) == minBalance3);
+		});
+	}
+	SECTION("debit payment non-native asset success")
+	{
+		for_all_versions(*app, [&] {
+			creditor.changeTrust(asset, 1000);
+			destination.changeTrust(asset, 1000);
+			debitor.pay(creditor, asset, amount);
+
+			creditor.manageDirectDebit(asset, debitor, false);
+
+			debitor.directDebitPayment(creditor, destination, asset, amount);
+			
+			auto creditorBalance = creditor.loadTrustLine(asset).balance;
+			auto destBalance = destination.loadTrustLine(asset).balance;
+
+			REQUIRE(destBalance == amount);
+			REQUIRE(creditorBalance == 0);
+			
 		});
 	}
 	
