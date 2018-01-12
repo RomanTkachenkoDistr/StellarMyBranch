@@ -28,24 +28,24 @@ namespace stellar
 			LedgerManager& ledgerManager)
 	{
 		Database& db = ledgerManager.getDatabase();
-		auto account = AccountFrame::loadAccount(mDirectDebitPayment.payment.destination, db);
-		if (!account)
+		auto debitor = AccountFrame::loadAccount(mDirectDebitPayment.payment.destination, db);
+		if (!debitor)
 		{
 			app.getMetrics()
 				.NewMeter({ "op-direct-debit-payment", "failure", "destination-not-exist" },
 					"operation")
 				.Mark();
-			innerResult().code(DIRECT_DEBIT_PAYMENT_MALFORMED);
+			innerResult().code(DIRECT_DEBIT_PAYMENT_ACCOUNT_NOT_EXIST);
 			return false;
 		}
-		account = AccountFrame::loadAccount(mDirectDebitPayment.creditor, db);
-		if (!account)
+		auto creditor = AccountFrame::loadAccount(mDirectDebitPayment.creditor, db);
+		if (!creditor)
 		{
 			app.getMetrics()
 				.NewMeter({ "op-direct-debit-payment", "failure", "creditor-not-exist" },
 					"operation")
 				.Mark();
-			innerResult().code(DIRECT_DEBIT_PAYMENT_MALFORMED);
+			innerResult().code(DIRECT_DEBIT_PAYMENT_ACCOUNT_NOT_EXIST);
 			return false;
 		}
 		auto debit = DirectDebitFrame::loadDirectDebit(getSourceID(), mDirectDebitPayment.payment.asset, mDirectDebitPayment.creditor, db, &delta);
@@ -68,7 +68,7 @@ namespace stellar
 		opRes.code(opINNER);
 		opRes.tr().type(PAYMENT);
 		PaymentOpFrame paymentOp(op, opRes, mParentTx);
-		paymentOp.setSourceAccountPtr(account);
+		paymentOp.setSourceAccountPtr(creditor);
 		if (!paymentOp.doCheckValid(app) ||
 			!paymentOp.doApply(app, delta, ledgerManager))
 		{
@@ -82,7 +82,8 @@ namespace stellar
 			{
 			case PAYMENT_UNDERFUNDED:
 				app.getMetrics()
-					.NewMeter({ "op-direct-debit-payment", "failure", "underfunded" }, "operation")
+					.NewMeter({ "op-direct-debit-payment", "failure", "underfunded" },
+						"operation")
 					.Mark();
 				res = DIRECT_DEBIT_PAYMENT_UNDERFUNDED;
 				break;
@@ -109,7 +110,8 @@ namespace stellar
 				break;
 			case PAYMENT_NO_TRUST:
 				app.getMetrics()
-					.NewMeter({ "op-direct-debit-payment", "failure", "no-trust" }, "operation")
+					.NewMeter({ "op-direct-debit-payment", "failure", "no-trust" }, 
+						"operation")
 					.Mark();
 				res = DIRECT_DEBIT_PAYMENT_NO_TRUST;
 				break;

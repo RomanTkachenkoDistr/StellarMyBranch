@@ -625,7 +625,8 @@ enum ManageDirectDebitResultCode
 	MANAGE_DIRECT_DEBIT_NO_TRUST = -3,
 	MANAGE_DIRECT_DEBIT_EXIST = -4,
 	MANAGE_DIRECT_DEBIT_NOT_EXIST = -5,
-	MANAGE_DIRECT_DEBIT_LOW_RESERVE = -6
+	MANAGE_DIRECT_DEBIT_LOW_RESERVE = -6,
+	MANAGE_DIRECT_DEBIT_DEBITOR_NOT_EXIST = -7
 	                                 
 };
 
@@ -651,7 +652,8 @@ enum DirectDebitPaymentResultCode
     DIRECT_DEBIT_PAYMENT_NOT_AUTHORIZED = -7, // destination not authorized to hold asset
     DIRECT_DEBIT_PAYMENT_LINE_FULL = -8,      // destination would go above their limit
     DIRECT_DEBIT_PAYMENT_NO_ISSUER = -9,       // missing issuer on asset   
-	DIRECT_DEBIT_PAYMENT_NOT_ALLOWED = -10
+	DIRECT_DEBIT_PAYMENT_NOT_ALLOWED = -10,
+	DIRECT_DEBIT_PAYMENT_ACCOUNT_NOT_EXIST = -11
 	                                 
 };
 

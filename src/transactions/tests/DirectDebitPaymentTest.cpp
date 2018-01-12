@@ -28,12 +28,13 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 
 	app->start();
 
-	auto const minBalance3 = app->getLedgerManager().getMinBalance(3);
-	// set up world
-	auto root = TestAccount::createRoot(*app);
-	auto creditor = root.create("creditor", minBalance3);
-	auto debitor = root.create("debitor", minBalance3);
-	auto destination = root.create("acc", minBalance3);
+	int64_t const minBalance3 = app->getLedgerManager().getMinBalance(3);
+	int64_t fee = app->getLedgerManager().getCurrentLedgerHeader().baseFee;
+	TestAccount root = TestAccount::createRoot(*app);
+	TestAccount creditor = root.create("creditor", minBalance3);
+	TestAccount debitor = root.create("debitor", minBalance3);
+	TestAccount destination = root.create("dest", minBalance3);
+
 	Asset nativeAsset = makeNativeAsset();
 	int64_t amount = 20;
 	Asset invalidAsset = makeInvalidAsset();
@@ -44,7 +45,7 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 		SECTION("native asset not allowed") {
 			for_all_versions(*app, [&] {
 				REQUIRE_THROWS_AS(debitor.directDebitPayment(creditor, destination, nativeAsset, amount),
-					ex_DIRECT_DEBIT_PAYMNET_NOT_ALLOWED);
+					ex_DIRECT_DEBIT_PAYMENT_NOT_ALLOWED);
 			});
 		}
 		SECTION("allowed asset but native not allowed") {
@@ -53,7 +54,7 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 			creditor.manageDirectDebit(asset, debitor, false);
 			
 				REQUIRE_THROWS_AS(debitor.directDebitPayment(creditor, destination, nativeAsset, amount),
-					ex_DIRECT_DEBIT_PAYMNET_NOT_ALLOWED);
+					ex_DIRECT_DEBIT_PAYMENT_NOT_ALLOWED);
 			});
 		}
 		SECTION("allowed native asset but asset not allowed") {
@@ -62,7 +63,7 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 			creditor.manageDirectDebit(nativeAsset, debitor, false);
 			
 				REQUIRE_THROWS_AS(debitor.directDebitPayment(creditor, destination, asset, amount),
-					ex_DIRECT_DEBIT_PAYMNET_NOT_ALLOWED);
+					ex_DIRECT_DEBIT_PAYMENT_NOT_ALLOWED);
 			});
 		}
 	}
@@ -71,13 +72,14 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 		for_all_versions(*app, [&] {
 		creditor.manageDirectDebit(nativeAsset, debitor, false);
 		debitor.directDebitPayment(creditor, destination, nativeAsset, amount);
+
 		AccountFrame::pointer creditorAcc, debitorAcc, destAcc;
 		creditorAcc = loadAccount(creditor, *app);
 		debitorAcc = loadAccount(debitor, *app);
 		destAcc = loadAccount(destination, *app);
 		
-			REQUIRE(debitorAcc->getBalance() + 100 == minBalance3);
-			REQUIRE(creditorAcc->getBalance() + 100 + amount == minBalance3);
+			REQUIRE((debitorAcc->getBalance() + fee) == minBalance3);
+			REQUIRE((creditorAcc->getBalance() + fee + amount) == minBalance3);
 			REQUIRE((destAcc->getBalance() - amount) == minBalance3);
 		});
 	}
@@ -94,7 +96,9 @@ TEST_CASE("debitpayment", "[tx][debitpayment]")
 			
 			auto creditorBalance = creditor.loadTrustLine(asset).balance;
 			auto destBalance = destination.loadTrustLine(asset).balance;
+			auto debitorAcc = loadAccount(debitor, *app);
 
+			REQUIRE((debitorAcc->getBalance() + fee*2) == minBalance3);
 			REQUIRE(destBalance == amount);
 			REQUIRE(creditorBalance == 0);
 			

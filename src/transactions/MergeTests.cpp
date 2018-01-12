@@ -436,6 +436,13 @@ TEST_CASE("merge", "[tx][merge]")
                                   ex_ACCOUNT_MERGE_HAS_SUB_ENTRIES);
             });
         }
+		SECTION("account has debit")
+		{
+			a1.manageDirectDebit(makeNativeAsset(), b1, false);
+			REQUIRE_THROWS_AS(a1.merge(b1),
+				ex_ACCOUNT_MERGE_HAS_SUB_ENTRIES);
+
+		}
     }
 
     SECTION("success")
