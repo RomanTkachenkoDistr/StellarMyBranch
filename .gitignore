@@ -78,3 +78,5 @@
 *.vcxproj.user
 **/.vs/*
 
+.idea/
+cmake-build-debug/

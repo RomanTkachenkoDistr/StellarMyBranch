@@ -136,7 +136,7 @@ case DIRECT_DEBIT:
 		AccountID creditor;
 		Asset asset;
 	
-	}directDebit;
+	} directDebit;
 };
 
 enum BucketEntryType

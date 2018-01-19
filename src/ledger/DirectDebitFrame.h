@@ -59,7 +59,7 @@ namespace stellar
 			Database& db, LedgerDelta* delta = nullptr);
 
 
-		static void DirectDebitFrame::deleteDirectDebitsModifiedOnOrAfterLedger(Database& db,
+		static void deleteDirectDebitsModifiedOnOrAfterLedger(Database& db,
 				uint32_t oldestLedger);
 
 		DirectDebitFrame & operator=(DirectDebitFrame const & other);
