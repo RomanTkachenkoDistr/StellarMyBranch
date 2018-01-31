@@ -28,7 +28,7 @@ namespace stellar
 		bool doCheckValid(Application& app) override;
 		bool applyDelete(Application& app, LedgerDelta& delta,
 			LedgerManager& ledgerManager);
-		LedgerEntry buildDirectDebit(AccountID const & creditor, ManageDirectDebitOp const & op);
+		LedgerEntry buildDirectDebit();
 
 		static ManageDirectDebitResultCode
 			getInnerCode(OperationResult const& res)

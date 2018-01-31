@@ -59,7 +59,7 @@ namespace stellar
 			LedgerManager& ledgerManager)
 	{
 		
-		if (mManageDirectDebit.cancelDebit)//ג מעהוכüםûי לועמה
+		if (mManageDirectDebit.cancelDebit)
 		{
 			return applyDelete(app, delta, ledgerManager);
 		}
@@ -118,7 +118,7 @@ namespace stellar
 			
 			DirectDebitFrame::pointer debit;
 			
-			debit = std::make_shared<DirectDebitFrame>(buildDirectDebit(getSourceID(), mManageDirectDebit)); 
+			debit = std::make_shared<DirectDebitFrame>(buildDirectDebit());
 			mSourceAccount->storeChange(delta, db);
 			debit->storeAdd(delta, db);
 			
@@ -152,18 +152,17 @@ namespace stellar
 		return true;
 	}
 	LedgerEntry
-		ManageDirectDebitOpFrame::buildDirectDebit(AccountID const& creditor,
-			ManageDirectDebitOp const& op)
+		ManageDirectDebitOpFrame::buildDirectDebit()
 	{
+
 		DirectDebitFrame::pointer debit;
 		LedgerEntry le;
 		le.data.type(DIRECT_DEBIT);
 		DirectDebitEntry o;
-		o.asset = op.asset;
-		o.creditor = creditor;
-		o.debitor = op.debitor;
+		o.asset = mManageDirectDebit.asset;
+		o.creditor = getSourceID();
+		o.debitor = mManageDirectDebit.debitor;
 		le.data.directDebit() = o;
-		debit = std::make_shared<DirectDebitFrame>(le);
 		return le;
 	}
 }
