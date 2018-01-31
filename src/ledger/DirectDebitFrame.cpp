@@ -373,6 +373,7 @@ namespace stellar
 			auto& thisUserDebits = retDebits[of.data.directDebit().creditor];
 			thisUserDebits.emplace_back(make_shared<DirectDebitFrame>(of));
 		});
+        
 		return retDebits;
 	}
 	
